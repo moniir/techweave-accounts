@@ -4,32 +4,40 @@ import com.techweave.accounts.constants.AccountsConstants;
 import com.techweave.accounts.dto.CustomerDTO;
 import com.techweave.accounts.dto.ResponseDTO;
 import com.techweave.accounts.service.IAccountsService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
+@Validated      //tells framework to perform validation all api inside accounts controller
 public class AccountsController {
 
     private IAccountsService iAccountsService;
     @PostMapping(value = "/create")
-    public ResponseEntity<ResponseDTO> createAccount(@RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<ResponseDTO> createAccount(@Valid @RequestBody CustomerDTO customerDTO){
         iAccountsService.createAccount(customerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(new ResponseDTO(AccountsConstants.STATUS_201,AccountsConstants.MESSAGE_201));
     }
+
     @GetMapping("/fetch")
-    public ResponseEntity<CustomerDTO> getAccountsDetails(@RequestParam  String mobileNumber){
+    public ResponseEntity<CustomerDTO> getAccountsDetails(@RequestParam
+                                                          @Pattern(regexp = "(^$|[0-9]{11})",
+                                                                  message = "Mobile number should be 11 digits")
+                                                          String mobileNumber) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(iAccountsService.fetchAccoundDetail(mobileNumber));
     }
     @PutMapping("/update")
-    public ResponseEntity<ResponseDTO> updateAccount( @RequestBody CustomerDTO customerDTO){
+    public ResponseEntity<ResponseDTO> updateAccount(@Valid @RequestBody CustomerDTO customerDTO){
         if(iAccountsService.updateAccount(customerDTO)){
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseDTO(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
