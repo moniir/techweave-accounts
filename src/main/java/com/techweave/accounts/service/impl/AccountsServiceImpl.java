@@ -1,11 +1,13 @@
 package com.techweave.accounts.service.impl;
 
 import com.techweave.accounts.constants.AccountsConstants;
+import com.techweave.accounts.dto.AccountsDTO;
 import com.techweave.accounts.dto.CustomerDTO;
 import com.techweave.accounts.entity.Accounts;
 import com.techweave.accounts.entity.Customer;
 import com.techweave.accounts.exception.CustomerAlreadyExistException;
 import com.techweave.accounts.exception.NotFoundException;
+import com.techweave.accounts.mapper.AccountMapper;
 import com.techweave.accounts.mapper.CustomerMapper;
 import com.techweave.accounts.repository.AccountsRepository;
 import com.techweave.accounts.repository.CustomerRepository;
@@ -35,6 +37,7 @@ public class AccountsServiceImpl implements IAccountsService {
         Customer savedCustomer = customerRepository.save(customer);
         accountsRepository.save(createNewAccount(savedCustomer));
     }
+
     private Accounts createNewAccount(Customer customer) {
         Accounts newAccount = new Accounts();
         newAccount.setCustomerId(customer.getCustomerId());
@@ -45,10 +48,47 @@ public class AccountsServiceImpl implements IAccountsService {
         newAccount.setCreatedBy("Monir");
         return newAccount;
     }
+
     @Override
     public CustomerDTO fetchAccoundDetail(String mobileNumber) {
-        return CustomerMapper.mapToACustomerDTO(customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
-                ()-> new NotFoundException("No record found!")),new CustomerDTO());
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                () -> new NotFoundException("No record found!"));
+        CustomerDTO customerDTO = CustomerMapper.mapToACustomerDTO(customer, new CustomerDTO());
+        customerDTO.setAccountsDto(AccountMapper.mapToAccountDTO(accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
+                () -> new NotFoundException("Account not found")), new AccountsDTO()));
+        return customerDTO;
     }
+
+    @Override
+    public boolean updateAccount(CustomerDTO customerDTO) {
+        boolean isUpdated = false;
+        AccountsDTO accountsDTO = customerDTO.getAccountsDto();
+        if (accountsDTO != null) {
+            Accounts accounts = accountsRepository.findById(accountsDTO.getAccountNumber())
+                    .orElseThrow(() -> new NotFoundException("Account information not found"));
+            AccountMapper.mapToAccount(accountsDTO, accounts);
+            accounts.setUpdatedAt(LocalDateTime.now());
+            accounts.setUpdatedBy("Anonymous");
+            accounts = accountsRepository.save(accounts);
+            Customer customer = customerRepository.findById(accounts.getCustomerId())
+                    .orElseThrow(() -> new NotFoundException("Customer not found"));
+            CustomerMapper.mapToCustomer(customerDTO, customer);
+            customer.setUpdatedAt(LocalDateTime.now());
+            customer.setUpdatedBy("Anonymous");
+            customerRepository.save(customer);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    @Override
+    public boolean deleteAccount(String mobileNumber) {
+        Customer customer = customerRepository.findByMobileNumber(mobileNumber)
+                .orElseThrow(()->new NotFoundException("No record found!"));
+        accountsRepository.deleteByCustomerId(customer.getCustomerId());
+        customerRepository.delete(customer);
+        return true;
+    }
+
 
 }

@@ -28,4 +28,22 @@ public class AccountsController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(iAccountsService.fetchAccoundDetail(mobileNumber));
     }
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDTO> updateAccount( @RequestBody CustomerDTO customerDTO){
+        if(iAccountsService.updateAccount(customerDTO)){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseDTO(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ResponseDTO(AccountsConstants.STATUS_417,AccountsConstants.MESSAGE_417_UPDATE));
+    }
+    @DeleteMapping("/delete")
+    public ResponseEntity<ResponseDTO> deleteAccount( @RequestParam String mobileNumber){
+        if(iAccountsService.deleteAccount(mobileNumber)){
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new ResponseDTO(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ResponseDTO(AccountsConstants.STATUS_417,AccountsConstants.MESSAGE_417_UPDATE));
+    }
 }

@@ -1,8 +1,6 @@
 package com.techweave.accounts.mapper;
 
-import com.techweave.accounts.dto.AccountsDTO;
 import com.techweave.accounts.dto.CustomerDTO;
-import com.techweave.accounts.entity.Accounts;
 import com.techweave.accounts.entity.Customer;
 
 public class CustomerMapper {
