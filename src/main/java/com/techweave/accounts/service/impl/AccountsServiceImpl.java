@@ -5,6 +5,7 @@ import com.techweave.accounts.dto.CustomerDTO;
 import com.techweave.accounts.entity.Accounts;
 import com.techweave.accounts.entity.Customer;
 import com.techweave.accounts.exception.CustomerAlreadyExistException;
+import com.techweave.accounts.exception.NotFoundException;
 import com.techweave.accounts.mapper.CustomerMapper;
 import com.techweave.accounts.repository.AccountsRepository;
 import com.techweave.accounts.repository.CustomerRepository;
@@ -34,7 +35,6 @@ public class AccountsServiceImpl implements IAccountsService {
         Customer savedCustomer = customerRepository.save(customer);
         accountsRepository.save(createNewAccount(savedCustomer));
     }
-
     private Accounts createNewAccount(Customer customer) {
         Accounts newAccount = new Accounts();
         newAccount.setCustomerId(customer.getCustomerId());
@@ -45,4 +45,10 @@ public class AccountsServiceImpl implements IAccountsService {
         newAccount.setCreatedBy("Monir");
         return newAccount;
     }
+    @Override
+    public CustomerDTO fetchAccoundDetail(String mobileNumber) {
+        return CustomerMapper.mapToACustomerDTO(customerRepository.findByMobileNumber(mobileNumber).orElseThrow(
+                ()-> new NotFoundException("No record found!")),new CustomerDTO());
+    }
+
 }
