@@ -46,7 +46,8 @@ public class AccountsController {
                 .body(new ResponseDTO(AccountsConstants.STATUS_417,AccountsConstants.MESSAGE_417_UPDATE));
     }
     @DeleteMapping("/delete")
-    public ResponseEntity<ResponseDTO> deleteAccount( @RequestParam String mobileNumber){
+    public ResponseEntity<ResponseDTO> deleteAccount( @RequestParam @Pattern(regexp = "(^$|[0-9]{11})",
+            message = "Mobile number should be 11 digits") String mobileNumber){
         if(iAccountsService.deleteAccount(mobileNumber)){
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ResponseDTO(AccountsConstants.STATUS_200, AccountsConstants.MESSAGE_200));
