@@ -4,6 +4,8 @@ import com.techweave.accounts.constants.AccountsConstants;
 import com.techweave.accounts.dto.CustomerDTO;
 import com.techweave.accounts.dto.ResponseDTO;
 import com.techweave.accounts.service.IAccountsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -13,6 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(
+        name = "CRUD REST APIs for Accounts in TechWeaves",
+        description = "Create, Update, Fetch and Delete"
+)
 @RestController
 @RequestMapping(path = "/api", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
@@ -20,6 +26,11 @@ import org.springframework.web.bind.annotation.*;
 public class AccountsController {
 
     private IAccountsService iAccountsService;
+
+    @Operation(
+            summary = "Create accounts REST Api",
+            description = "REST API to create Customer & Accounts"
+    )
     @PostMapping(value = "/create")
     public ResponseEntity<ResponseDTO> createAccount(@Valid @RequestBody CustomerDTO customerDTO){
         iAccountsService.createAccount(customerDTO);
